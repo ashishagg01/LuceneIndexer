@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context-3.0.xsd
+		http://www.springframework.org/schema/jee 
+		http://www.springframework.org/schema/jee/spring-jee-2.0.xsd">
+
+	<context:annotation-config />
+	<context:component-scan base-package="dw.spring3.rest.controller" />
+
+	<bean id="subsIndexer" class="com.ibm.ussd.fsl.indexer.USSDSubscriberIndexer" factory-method="getInstance" />
+
+	<bean id="subsSearcher" class="com.ibm.ussd.fsl.indexer.USSDSubscriberSearch" factory-method="getInstance" />
+
+	<!-- Scheduler job -->
+	<bean name="schedulerJob" class="com.ibm.ussd.fsl.utils.SchedulerJob" />
+
+	<bean name="jobDetailBean" class="org.springframework.scheduling.quartz.JobDetailBean">
+	 
+		<property name="jobClass" value="com.ibm.ussd.fsl.utils.SchedulerJob" />
+	 
+		<property name="jobDataAsMap">
+			<map>
+				<entry key="indexer" value-ref="subsIndexer" />
+				<entry key="queueSender" value-ref="messageSender" />
+			</map>
+		</property>
+	 
+	</bean>
+
+	<!-- Cron Trigger -->
+	<bean id="cronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+
+		<property name="jobDetail" ref="jobDetailBean" />
+		<property name="cronExpression" value="0 0 0 * * ?" />
+	</bean>
+
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+	  <property name="triggers">
+	    <list>
+	      <ref bean="cronTrigger"/>
+	     </list>
+	  </property>
+	</bean>
+	
+	<bean id="messageListener" class="com.ibm.ussd.fsl.messagebeans.IndexerSwitchCoreMessageListener" >
+		<property name="subscriberSearch" ref="subsSearcher"/>
+	</bean>
+
+  <bean id="msgListenerContainer"
+      class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+      <property name="connectionFactory" ref="jmsConnectionFactory" />
+      <property name="destination" ref="jmsSenderQueue" />
+      <property name="messageListener" ref="messageListener" />
+   </bean>
+
+	<!-- **************************************************************************** 
+		**************************************************************************** -->
+	<!-- CREATE CONNECTION FACTORY -->
+	<jee:jndi-lookup id="jmsConnectionFactory"
+		jndi-name="jms/queueConnectionFactory_USSDFSL" />
+	<!-- CREATE JMS SENDER QUEUE -->
+	<jee:jndi-lookup id="jmsSenderQueue" jndi-name="jms/USSD_FSL_CORE_SWITCH_QUEUE" />
+	<!-- CREATE INDEXER SWITCH CORE QUEUE SENDER BEAN -->
+	<bean id="messageSender"
+		class=" com.ibm.ussd.fsl.messagebeans.IndexerSwitchCoreQueueSender">
+		<property name="queue" ref="jmsSenderQueue" />
+		<property name="connectionFactory" ref="jmsConnectionFactory" />
+	</bean>
+
+</beans>	

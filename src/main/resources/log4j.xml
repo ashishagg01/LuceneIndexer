@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd" >
+<log4j:configuration>
+	<appender name="stdoutconsole" class="org.apache.log4j.ConsoleAppender">
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern"
+				value="%d{yyyy-MM-dd HH:mm:ss,SSS} %5p [%t] %C %M %c{1}:%L - %m%n" />
+
+		</layout>
+	</appender>
+	<appender name="indexerlogfile" class="org.apache.log4j.RollingFileAppender">
+		<param name="File" value="/africaapp/ussdfsl/logs/ussdindexer.log" />
+		<param name="Append" value="true" />
+		<param name="Threshold" value="DEBUG" />
+		<param name="MaxFileSize" value="10000KB" />
+		<param name="MaxBackupIndex" value="100" />
+		<param name="ImmediateFlush" value="true" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern"
+				value="%d{yyyy-MM-dd HH:mm:ss,SSS} %5p [%t] %C %M %c{1}:%L - %m%n" />
+		</layout>
+	</appender>
+	<appender name="searchIndexer" class="org.apache.log4j.RollingFileAppender">
+		<param name="file" value="/africaapp/ussdfsl/logs/searchedindexer.log" />
+		<param name="Append" value="true" />
+		<param name="Threshold" value="DEBUG" />
+		<param name="MaxFileSize" value="10000KB" />
+		<!-- Keep one backup file -->
+		<param name="MaxBackupIndex" value="100" />
+		<param name="ImmediateFlush" value="true" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern"
+				value="%d{yyyy-MM-dd HH:mm:ss,SSS} %5p [%t] %C %M %c{1}:%L - %m%n" />
+		</layout>
+	</appender>
+	<logger name="com.ibm.ussd.fsl.indexer.USSDSubscriberIndexer"
+		additivity="false">
+		<level value="debug" />
+		<appender-ref ref="indexerlogfile" />
+	</logger>
+	<logger name="com.ibm.ussd.fsl.indexer.USSDScubscriberIndexUpdate"
+		additivity="false">
+		<level value="debug" />
+		<appender-ref ref="indexerlogfile" />
+	</logger>
+	<logger name="com.ibm.ussd.fsl.indexer.USSDSubscriberSearch"
+		additivity="false">
+		<level value="info" />
+		<appender-ref ref="searchIndexer" />
+	</logger>
+	<logger name="com.ibm.ussd.fsl.messagebeans.IndexerSwitchCoreMessageListener"
+		additivity="false">
+		<level value="debug" />
+		<appender-ref ref="indexerlogfile" />
+	</logger>
+	<logger name="com.ibm.ussd.fsl.messagebeans.IndexerSwitchCoreQueueSender"
+		additivity="false">
+		<level value="debug" />
+		<appender-ref ref="indexerlogfile" />
+	</logger>
+	<logger name="com.ibm.ussd.fsl.utils"
+		additivity="false">
+		<level value="info" />
+		<appender-ref ref="indexerlogfile" />
+	</logger>
+	<root>
+		<priority value="info"></priority>
+		<appender-ref ref="stdoutconsole" />
+		<appender-ref ref="indexerlogfile" />
+		<appender-ref ref="searchIndexer" />
+	</root>
+</log4j:configuration>

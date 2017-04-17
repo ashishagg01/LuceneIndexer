@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Class-Path: commons-logging-1.0.4.jar 
+ commons-dbcp-1.2.2.jar 
+ log4j-1.2.16.jar 
+ db2jcc_license_cisuz.jar 
+ db2jcc_license_cu.jar 
+ db2jcc.jar 
+ USSDCommonAE.jar 
+ USSDMenuDao.jar
+
